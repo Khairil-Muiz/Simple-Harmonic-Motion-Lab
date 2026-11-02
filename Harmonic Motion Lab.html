@@ -1,0 +1,845 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Harmonic Motion Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+:root{
+  color-scheme:light;
+  --paper:#F4F6FA; --card:#FFFFFF; --ink:#15233B; --ink2:#37465E; --muted:#66738A;
+  --rule:#D6DCE6; --grid:#E7EBF2;
+  --phys:#1B4FD8; --phys-bg:#E9EFFD;
+  --heat:#C2264C; --heat-bg:#FCEAEF;
+  --geo:#0B7A6E;  --geo-bg:#E1F3F0;
+  --warn:#8A5200; --warn-bg:#FFF3DB;
+  --serif:Georgia,"Iowan Old Style","Palatino Linotype",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --math:"Cambria Math","STIX Two Math","Latin Modern Math",Georgia,serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;color:var(--ink);font:16px/1.55 var(--sans)}
+:focus-visible{outline:3px solid var(--phys);outline-offset:2px;border-radius:3px}
+button,select,input{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--serif);line-height:1.2;margin:0;font-weight:700}
+h2{font-size:1.75rem}
+h3{font-size:1.1rem}
+p{margin:0 0 .7em}
+a{color:var(--phys)}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* top bar */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ink)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--ink);color:#fff;box-shadow:0 1px 0 rgba(0,0,0,.2)}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding-top:8px;padding-bottom:0}
+.brand{display:flex;flex-direction:column;line-height:1.15;margin-right:auto}
+.brand b{font-family:var(--serif);font-size:1.15rem}
+.brand span{font-size:.78rem;opacity:.72}
+.mode{display:flex;border:1px solid rgba(255,255,255,.35);border-radius:999px;overflow:hidden}
+.mode button{background:transparent;border:0;color:#fff;padding:5px 14px;cursor:pointer;font-size:.88rem}
+.mode button[aria-pressed=true]{background:#fff;color:var(--ink);font-weight:600}
+.nbtn{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:999px;padding:5px 12px;cursor:pointer;font-size:.88rem}
+.nbtn[aria-pressed=true]{background:#F2D08A;color:var(--ink);border-color:#F2D08A;font-weight:600}
+body:not(.guided) .nbtn{display:none}
+#tabs{flex-basis:100%;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin:0 -4px}
+#tabs::-webkit-scrollbar{display:none}
+#tabs button{background:transparent;color:#C9D3E6;border:0;border-bottom:3px solid transparent;padding:9px 12px 7px;cursor:pointer;white-space:nowrap;font-size:.92rem}
+#tabs button[aria-selected=true]{color:#fff;border-bottom-color:#fff;font-weight:600}
+#tabs button:hover{color:#fff}
+#progress{height:3px;background:rgba(255,255,255,.18)}
+#progress i{display:block;height:100%;width:0;background:#8FB0FF;transition:width .25s}
+body:not(.guided) #progress{visibility:hidden}
+
+/* views */
+main{padding-block:22px 60px}
+.view{display:none}.view.on{display:block}
+.lead{font-size:1.05rem;color:var(--ink2);max-width:70ch;margin-top:8px}
+.talk{display:none;margin:14px 0 4px;background:var(--warn-bg);border-left:4px solid #D69A2D;padding:10px 14px;border-radius:0 6px 6px 0;max-width:80ch}
+body.notes .talk{display:block}
+.talk b{display:block;font-size:.8rem;color:var(--warn);margin-bottom:2px}
+.talk ul{margin:0;padding-left:1.1em}
+.talk li{margin:2px 0}
+.cols{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px;margin-top:16px;align-items:start}
+@media (max-width:900px){.cols{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:14px 16px;margin-top:16px;min-width:0}
+.cols .panel{margin-top:0}
+.panel h3{margin-bottom:8px}
+svg{display:block;width:100%;height:auto;overflow:visible}
+.gl{stroke:var(--grid);stroke-width:1}
+.ax{stroke:var(--ink2);stroke-width:1.2}
+.tk{font:11px var(--sans);fill:var(--muted)}
+.al{font:12px var(--sans);fill:var(--ink2)}
+.dl{font:600 12px var(--sans)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.85rem;color:var(--ink2);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:22px;height:0;border-top:3px solid}
+.sw.dash{border-top-style:dashed}
+.sw.dot{width:10px;height:10px;border-radius:50%;border:0;background:currentColor}
+.sw.sq{width:10px;height:10px;border:0;background:currentColor}
+
+/* controls */
+.ctl{margin:0 0 12px}
+.ctl label{display:flex;justify-content:space-between;gap:10px;font-size:.92rem;color:var(--ink2)}
+.ctl output{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink)}
+input[type=range]{width:100%;margin:4px 0 0;accent-color:var(--phys);height:28px}
+.heat input[type=range]{accent-color:var(--heat)}
+.geo input[type=range]{accent-color:var(--geo)}
+select,input[type=number]{border:1px solid var(--rule);border-radius:5px;padding:5px 8px;background:#fff;min-height:36px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 10px}
+.btn{background:#fff;border:1px solid var(--ink2);color:var(--ink);padding:6px 12px;border-radius:5px;cursor:pointer;font-size:.9rem;min-height:36px}
+.btn:hover{background:var(--phys-bg)}
+.btn.pri{background:var(--ink);color:#fff;border-color:var(--ink)}
+.seg{display:inline-flex;border:1px solid var(--ink2);border-radius:5px;overflow:hidden}
+.seg button{border:0;background:#fff;padding:6px 12px;cursor:pointer;min-height:36px;font-size:.9rem}
+.seg button[aria-pressed=true]{background:var(--ink);color:#fff}
+
+/* readouts */
+.ro{display:grid;grid-template-columns:1fr auto;gap:5px 12px;margin:0;font-size:.95rem}
+.ro dt{color:var(--ink2)}
+.ro dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.ro .hr{grid-column:1/-1;border-top:1px solid var(--rule);margin:3px 0}
+.big{font-family:var(--serif);font-size:2rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.note{font-size:.9rem;color:var(--ink2);background:var(--phys-bg);border-radius:6px;padding:8px 11px;margin-top:10px}
+.note.heatn{background:var(--heat-bg)}.note.geon{background:var(--geo-bg)}.note.warn{background:var(--warn-bg)}
+.src{font-size:.78rem;color:var(--muted);margin-top:8px}
+
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
+@media (max-width:900px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:420px){.tiles{grid-template-columns:minmax(0,1fr)}}
+.tile{background:var(--card);border:1px solid var(--rule);border-top:4px solid var(--phys);border-radius:6px;padding:12px 14px;text-align:left;cursor:pointer;display:block;width:100%}
+.tile.t-heat{border-top-color:var(--heat)}.tile.t-geo{border-top-color:var(--geo)}
+.tile:hover{box-shadow:0 2px 10px rgba(21,35,59,.12)}
+.tile small{display:block;color:var(--muted);font-size:.8rem}
+.tile .big{display:block;margin:2px 0}
+.tile span.d{font-size:.85rem;color:var(--ink2)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:24px;align-items:center}
+@media (max-width:900px){.hero{grid-template-columns:minmax(0,1fr)}}
+.hero h1{font-size:clamp(1.9rem,4.2vw,2.8rem)}
+.hero p{font-size:1.08rem;color:var(--ink2);margin-top:12px;max-width:52ch}
+.stage{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:8px 12px 12px}
+.stage .row{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;justify-content:space-between}
+.rod{stroke-width:2.5}.rod.ex{stroke:var(--phys)}.rod.shm{stroke:var(--geo);stroke-dasharray:5 4;stroke-width:2}
+.bob.ex{fill:var(--phys)}.bob.shm{fill:rgba(255,255,255,.7);stroke:var(--geo);stroke-width:2.5}
+.ceil{stroke:var(--ink);stroke-width:5;stroke-linecap:round}
+.pivot{fill:var(--ink)}
+.range{fill:none;stroke:var(--rule);stroke-width:2;stroke-dasharray:2 5}
+.trc{fill:none;stroke-width:2}
+
+/* math */
+.deriv{margin-top:16px;background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:0}
+.deriv summary{cursor:pointer;padding:12px 16px;font-family:var(--serif);font-weight:700;font-size:1.08rem}
+.deriv .in{padding:0 18px 14px}
+.deriv ol{padding-left:1.3em;margin:6px 0}
+.deriv li{margin:10px 0}
+.eq{font-family:var(--math);font-size:1.12rem;display:block;margin:4px 0 2px 0;overflow-x:auto;padding:2px 0}
+.m{font-family:var(--math);font-style:italic}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .18em;line-height:1.2;font-style:normal}
+.fr>span:first-child{border-bottom:1px solid currentColor;padding:0 .2em}
+.fr>span:last-child{padding:0 .2em}
+.sq{display:inline-flex;align-items:stretch;vertical-align:middle;white-space:nowrap;margin:0 .1em}
+.sq::before{content:"";flex:0 0 .8em;margin-right:-1px;background:no-repeat center/100% 100% url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 20' preserveAspectRatio='none'%3E%3Cpath d='M0.4 11.5 L2.3 10.2 L5 19.3 L9.9 1' fill='none' stroke='%2315233B' stroke-width='1.4' vector-effect='non-scaling-stroke' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E")}
+.sq .rad{display:inline-block;border-top:1.4px solid #15233B;padding:.14em .3em .05em .1em;line-height:1.3}
+.pr{font-size:2em;font-weight:200;line-height:0;vertical-align:-.1em;font-style:normal}
+.why{color:var(--ink2);font-size:.94rem}
+
+/* tables */
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.92rem;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid var(--rule);padding:5px 8px;text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:600;color:var(--ink2);font-size:.85rem}
+td input{width:84px;text-align:right}
+td.mu{color:var(--muted)}
+
+/* heat view */
+.bobs{display:flex;justify-content:space-around;gap:10px;margin-top:6px}
+.bobs figure{margin:0;text-align:center;font-size:.85rem;color:var(--ink2)}
+.sway{transform-origin:50% 0;animation:sway 2s ease-in-out infinite alternate}
+@keyframes sway{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+
+/* industry */
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:16px}
+@media (max-width:1000px){.cards{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:16px;display:flex;flex-direction:column}
+.card.a{border-top:5px solid var(--geo)}.card.b{border-top:5px solid var(--heat)}.card.c{border-top:5px solid var(--phys)}
+.card h3{font-size:1.2rem}
+.card .tie{font-size:.9rem;color:var(--ink2);margin:6px 0 12px}
+.card .res{margin-top:auto;padding-top:8px}
+.band{position:relative;height:10px;background:var(--grid);border-radius:5px;margin:4px 0 2px}
+.band i{position:absolute;top:0;height:100%;border-radius:5px}
+.bandl{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted)}
+.foot{margin-top:34px;padding-top:14px;border-top:1px solid var(--rule);font-size:.82rem;color:var(--muted)}
+.foot a{color:var(--ink2)}
+.stepnav{display:none;justify-content:space-between;align-items:center;margin-top:26px;gap:10px}
+body.guided .stepnav{display:flex}
+.stepnav span{color:var(--muted);font-size:.9rem}
+.bar2{display:flex;height:22px;border-radius:4px;overflow:hidden;margin:8px 0 4px;font-size:.78rem;color:#fff}
+.bar2 div{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden}
+@media (prefers-reduced-motion:reduce){.sway{animation:none}#progress i{transition:none}}
+</style>
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><b>Harmonic Motion Lab</b><span>One pendulum: gravity, geometry and heat</span></div>
+    <div class="mode" role="group" aria-label="Viewing mode">
+      <button id="mGuided" aria-pressed="true">Guided</button>
+      <button id="mExplore" aria-pressed="false">Explore</button>
+    </div>
+    <button id="mNotes" class="nbtn" aria-pressed="false" title="Show speaker notes on screen">Speaker notes</button>
+    <nav id="tabs" aria-label="Sections"></nav>
+  </div>
+  <div id="progress"><i></i></div>
+</header>
+
+<main class="wrap">
+<noscript><p>This app needs JavaScript enabled.</p></noscript>
+
+<!-- ============ OVERVIEW ============ -->
+<section class="view" id="v-home" aria-labelledby="h-home">
+  <div class="hero">
+    <div>
+      <h1 id="h-home">A swinging bob shows when a simple model is safe to trust</h1>
+      <p>Three lab measurements on one pendulum: how well it measures gravity, how large a swing the linear model survives, and how much motion speeds up heat loss. Each one maps onto a real engineering decision.</p>
+    </div>
+    <div class="stage">
+      <svg id="ovPend" aria-label="Pendulum: exact motion against ideal simple harmonic motion"></svg>
+      <svg id="ovTrace" aria-label="Angle against time for both motions"></svg>
+      <div class="row">
+        <div class="ctl" style="flex:1 1 200px;margin:6px 0 0"><label for="ovAmp">Release angle <output id="ovAmpO"></output></label><input id="ovAmp" type="range" min="5" max="120" value="70"></div>
+        <div class="btns" style="margin:6px 0 0"><button class="btn" id="ovPlay">Pause</button><button class="btn" id="ovReset">Restart</button></div>
+      </div>
+      <div class="legend"><span style="color:var(--phys)"><i class="sw"></i>Real pendulum</span><span style="color:var(--geo)"><i class="sw dash"></i>Ideal SHM (small-angle model)</span></div>
+    </div>
+  </div>
+  <div class="talk"><b>Presenting this screen</b><ul>
+    <li>Both bobs start together. Drag the angle down to 10° and they stay locked; at 70° the real bob falls behind.</li>
+    <li>That lag is the whole story: the linear model is a tool with a limit, and the limit can be measured.</li></ul></div>
+  <div class="tiles">
+    <button class="tile" data-go="g"><small>Measuring g, small swing</small><span class="big" id="tg"></span><span class="d" id="tgd"></span></button>
+    <button class="tile" data-go="big"><small>Same pendulum, 70° release</small><span class="big" id="tb"></span><span class="d" id="tbd"></span></button>
+    <button class="tile t-geo" data-go="geo"><small>Arc against straight-line distance</small><span class="big" id="tm"></span><span class="d" id="tmd"></span></button>
+    <button class="tile t-heat" data-go="heat"><small>Heat loss, moving against still</small><span class="big" id="th"></span><span class="d" id="thd"></span></button>
+  </div>
+</section>
+
+<!-- ============ MEASURING g ============ -->
+<section class="view" id="v-g" aria-labelledby="h-g">
+  <h2 id="h-g">Measuring g from a straight line</h2>
+  <p class="lead">For small swings, T² is proportional to length, and the gradient of that line is 4π²/g. Change the numbers in the table and watch g update, so the page works as a small analysis tool too.</p>
+  <div class="talk"><b>Presenting this screen</b><ul>
+    <li>Five lengths, 20 oscillations each, repeated three times. The points sit close to a straight line.</li>
+    <li>The dashed line is where g = 9.81 would put them. The gap between the lines is the 8.6% error.</li>
+    <li>Switch to best fit: it uses all five points instead of two, and the intercept shows a systematic length offset.</li></ul></div>
+  <div class="cols">
+    <div class="panel"><svg id="plotG" aria-label="T squared against length"></svg>
+      <div class="legend">
+        <span style="color:var(--phys)"><i class="sw dot"></i>Measured (T² = (t/N)²)</span>
+        <span style="color:var(--ink)"><i class="sw"></i>Fitted line</span>
+        <span style="color:var(--muted)"><i class="sw dash"></i>Line for the reference g</span>
+        <span style="color:var(--heat)"><i class="sw sq"></i>Length you pick below</span>
+      </div></div>
+    <div class="panel">
+      <div class="ctl"><label>Gradient method</label>
+        <div class="seg" id="gMethod"><button data-v="two" aria-pressed="true">Two-point line</button><button data-v="ls" aria-pressed="false">Best fit (all points)</button></div></div>
+      <div class="ctl"><label for="gRef">Compare against</label>
+        <select id="gRef"><option value="std">Standard g = 9.81 m/s²</option><option value="loc">Local g at latitude below</option></select></div>
+      <div class="ctl"><label for="gLat">Latitude for local g <output id="gLatO"></output></label><input id="gLat" type="range" min="0" max="60" step="0.1" value="6.3"></div>
+      <div class="ctl"><label for="gL">Try a length <output id="gLO"></output></label><input id="gL" type="range" min="0.2" max="1.2" step="0.01" value="0.75"></div>
+      <hr style="border:0;border-top:1px solid var(--rule);margin:6px 0 12px">
+      <dl class="ro" id="gRO"></dl>
+      <div class="note" id="gNote"></div>
+    </div>
+  </div>
+  <div class="panel"><h3>Data table (edit the time or length columns)</h3>
+    <div class="ctl" style="max-width:320px"><label for="gN">Oscillations timed per reading <output id="gNO"></output></label><input id="gN" type="range" min="5" max="50" step="1" value="20"></div>
+    <div class="tw"><table id="gTab"></table></div>
+    <div class="btns" style="margin-top:10px"><button class="btn" id="gAdd">Add a row</button><button class="btn" id="gDel">Remove last row</button><button class="btn" id="gReset">Restore project data</button></div>
+  </div>
+  <details class="deriv" open><summary>Derivation: from forces to g = 4π² ÷ gradient</summary><div class="in">
+    <ol>
+      <li>The bob (mass <span class="m">m</span>) hangs on a string of length <span class="m">l</span>, displaced by angle <span class="m">θ</span>. Gravity's component along the arc pulls it back:
+        <span class="eq"><span class="m">F</span> = −<span class="m">mg</span> sin <span class="m">θ</span></span></li>
+      <li>The bob moves along an arc of length <span class="m">s</span> = <span class="m">lθ</span>, so its acceleration along the arc is <span class="m">l</span> <span class="fr"><span>d²<span class="m">θ</span></span><span>d<span class="m">t</span>²</span></span>. Newton's second law, <span class="m">F</span> = <span class="m">ma</span>:
+        <span class="eq"><span class="m">ml</span> <span class="fr"><span>d²<span class="m">θ</span></span><span>d<span class="m">t</span>²</span></span> = −<span class="m">mg</span> sin <span class="m">θ</span></span></li>
+      <li>Divide both sides by <span class="m">ml</span>. The mass cancels, which is why the bob's mass does not matter:
+        <span class="eq"><span class="fr"><span>d²<span class="m">θ</span></span><span>d<span class="m">t</span>²</span></span> = −<span class="fr"><span class="m">g</span><span class="m">l</span></span> sin <span class="m">θ</span></span></li>
+      <li>For small angles (in radians) sin <span class="m">θ</span> = <span class="m">θ</span> − <span class="m">θ</span>³/6 + … ≈ <span class="m">θ</span>. At 10° the error is under 0.6%, so:
+        <span class="eq"><span class="fr"><span>d²<span class="m">θ</span></span><span>d<span class="m">t</span>²</span></span> = −<span class="fr"><span class="m">g</span><span class="m">l</span></span> <span class="m">θ</span></span>
+        This has the form <span class="fr"><span>d²<span class="m">θ</span></span><span>d<span class="m">t</span>²</span></span> = −<span class="m">ω</span>²<span class="m">θ</span>, the equation of simple harmonic motion, with <span class="m">ω</span>² = <span class="m">g</span>/<span class="m">l</span>.</li>
+      <li>Its solution is <span class="m">θ</span> = <span class="m">θ</span><sub>0</sub> cos(<span class="m">ωt</span>). One full cycle takes <span class="m">ωT</span> = 2π:
+        <span class="eq"><span class="m">T</span> = <span class="fr"><span>2π</span><span class="m">ω</span></span> = 2π <span class="sq"><span class="rad"><span class="fr"><span class="m">l</span><span class="m">g</span></span></span></span></span></li>
+      <li>Square both sides so the relationship becomes a straight line through the origin:
+        <span class="eq"><span class="m">T</span>² = <span class="fr"><span>4π²</span><span class="m">g</span></span> <span class="m">l</span></span>
+        Plotting <span class="m">T</span>² (y) against <span class="m">l</span> (x) gives gradient <span class="m">m</span> = 4π²/<span class="m">g</span>.</li>
+      <li>Rearranging gives gravity from the graph:
+        <span class="eq"><span class="m">g</span> = <span class="fr"><span>4π²</span><span class="m">m</span></span></span></li>
+      <li>Project numbers, reading two points from the graph:
+        <span class="eq"><span class="m">m</span> = <span class="fr"><span>3.36 − 2.92</span><span>0.80 − 0.70</span></span> = 4.40 s²/m</span>
+        <span class="eq"><span class="m">g</span> = <span class="fr"><span>4π²</span><span>4.40</span></span> = <span class="fr"><span>39.478</span><span>4.40</span></span> = 8.97 m/s²</span>
+        <span class="eq">error = <span class="fr"><span>9.81 − 8.97</span><span>9.81</span></span> × 100 = 8.56%</span></li>
+    </ol></div></details>
+</section>
+
+<!-- ============ LARGE SWING ============ -->
+<section class="view" id="v-big" aria-labelledby="h-big">
+  <h2 id="h-big">When the small-angle model stops being safe</h2>
+  <p class="lead">The formula T = 2π√(l/g) assumes sin θ ≈ θ. Release the pendulum wider and the real period grows, so the formula under-reports g. Here the exact period is computed, and the project's 70° trial is placed on it.</p>
+  <div class="talk"><b>Presenting this screen</b><ul>
+    <li>At 70° the real period is about 10% longer than the formula says. Using the formula anyway makes g read about 18% low.</li>
+    <li>The error budget bar splits the 23.66% error into physics we can predict and error left over for timing and length.</li>
+    <li>Takeaway for design: any linear vibration model carries an amplitude limit, and it can be quantified.</li></ul></div>
+  <div class="cols">
+    <div class="panel">
+      <svg id="bigPend" aria-label="Pendulum animation"></svg>
+      <svg id="bigTrace" aria-label="Angle against time"></svg>
+      <div class="btns"><button class="btn" id="bigPlay">Pause</button><button class="btn" id="bigReset">Restart</button></div>
+      <div class="legend"><span style="color:var(--phys)"><i class="sw"></i>Real pendulum</span><span style="color:var(--geo)"><i class="sw dash"></i>Ideal SHM</span></div>
+    </div>
+    <div class="panel">
+      <div class="ctl"><label for="bigAmp">Release angle <output id="bigAmpO"></output></label><input id="bigAmp" type="range" min="2" max="120" value="70"></div>
+      <div class="ctl"><label for="bigL">String length <output id="bigLO"></output></label><input id="bigL" type="range" min="0.5" max="2" step="0.05" value="1"></div>
+      <dl class="ro" id="bigRO"></dl>
+    </div>
+  </div>
+  <div class="panel"><h3>Period against release angle</h3><svg id="plotBig" aria-label="Period ratio against release angle"></svg>
+    <div class="legend">
+      <span style="color:var(--phys)"><i class="sw"></i>Exact (elliptic integral)</span>
+      <span style="color:var(--geo)"><i class="sw dash"></i>Lima–Arun closed form</span>
+      <span style="color:var(--muted)"><i class="sw dash"></i>1 + θ₀²/16 (first correction)</span>
+      <span style="color:var(--heat)"><i class="sw dot"></i>Measured at 70° (project)</span>
+    </div></div>
+  <div class="panel"><h3>The project's 70° trial: where does the 23.66% go?</h3><div id="bigBudget"></div></div>
+  <details class="deriv"><summary>Derivation: the exact period of a pendulum</summary><div class="in">
+    <ol>
+      <li>Use energy conservation instead of force. Released from rest at angle <span class="m">θ</span><sub>0</sub>, the bob has dropped by <span class="m">l</span>(cos <span class="m">θ</span> − cos <span class="m">θ</span><sub>0</sub>) at angle <span class="m">θ</span>:
+        <span class="eq">½ <span class="m">m</span><span class="m">l</span>²<span class="pr">(</span><span class="fr"><span>d<span class="m">θ</span></span><span>d<span class="m">t</span></span></span><span class="pr">)</span>² = <span class="m">mgl</span> (cos <span class="m">θ</span> − cos <span class="m">θ</span><sub>0</sub>)</span></li>
+      <li>Solve for the angular speed:
+        <span class="eq"><span class="fr"><span>d<span class="m">θ</span></span><span>d<span class="m">t</span></span></span> = <span class="sq"><span class="rad">(2<span class="m">g</span>/<span class="m">l</span>)(cos <span class="m">θ</span> − cos <span class="m">θ</span><sub>0</sub>)</span></span></span></li>
+      <li>Use cos <span class="m">θ</span> = 1 − 2 sin²(<span class="m">θ</span>/2). The 1's cancel in the difference:
+        <span class="eq">cos <span class="m">θ</span> − cos <span class="m">θ</span><sub>0</sub> = 2[sin²(<span class="m">θ</span><sub>0</sub>/2) − sin²(<span class="m">θ</span>/2)]</span>
+        <span class="eq"><span class="fr"><span>d<span class="m">θ</span></span><span>d<span class="m">t</span></span></span> = 2 <span class="sq"><span class="rad"><span class="m">g</span>/<span class="m">l</span></span></span> <span class="sq"><span class="rad">sin²(<span class="m">θ</span><sub>0</sub>/2) − sin²(<span class="m">θ</span>/2)</span></span></span></li>
+      <li>The bob takes a quarter period to go from <span class="m">θ</span> = 0 to <span class="m">θ</span><sub>0</sub>, so <span class="m">T</span> = 4 ∫ d<span class="m">θ</span> ÷ <span class="pr">(</span><span class="fr"><span>d<span class="m">θ</span></span><span>d<span class="m">t</span></span></span><span class="pr">)</span>:
+        <span class="eq"><span class="m">T</span> = 2 <span class="sq"><span class="rad"><span class="m">l</span>/<span class="m">g</span></span></span> ∫<sub>0</sub><sup><span class="m">θ</span>₀</sup> <span class="fr"><span>d<span class="m">θ</span></span><span><span class="sq"><span class="rad">sin²(<span class="m">θ</span><sub>0</sub>/2) − sin²(<span class="m">θ</span>/2)</span></span></span></span></span></li>
+      <li>Substitute sin(<span class="m">θ</span>/2) = <span class="m">k</span> sin <span class="m">φ</span> with <span class="m">k</span> = sin(<span class="m">θ</span><sub>0</sub>/2). Then <span class="m">θ</span> = 0 gives <span class="m">φ</span> = 0 and <span class="m">θ</span> = <span class="m">θ</span><sub>0</sub> gives <span class="m">φ</span> = π/2. The square-root term becomes:
+        <span class="eq">sin²(<span class="m">θ</span><sub>0</sub>/2) − sin²(<span class="m">θ</span>/2) = <span class="m">k</span>² − <span class="m">k</span>² sin²<span class="m">φ</span> = <span class="m">k</span>² cos²<span class="m">φ</span></span></li>
+      <li>Differentiate the substitution: ½ cos(<span class="m">θ</span>/2) d<span class="m">θ</span> = <span class="m">k</span> cos <span class="m">φ</span> d<span class="m">φ</span>, and cos(<span class="m">θ</span>/2) = √(1 − <span class="m">k</span>² sin²<span class="m">φ</span>), so:
+        <span class="eq">d<span class="m">θ</span> = <span class="fr"><span>2<span class="m">k</span> cos <span class="m">φ</span> d<span class="m">φ</span></span><span><span class="sq"><span class="rad">1 − <span class="m">k</span>² sin²<span class="m">φ</span></span></span></span></span></span></li>
+      <li>Put both pieces into the integral. The factors <span class="m">k</span> cos <span class="m">φ</span> cancel top and bottom, and the 2 outside cancels the 2 in d<span class="m">θ</span>:
+        <span class="eq"><span class="m">T</span> = 4 <span class="sq"><span class="rad"><span class="m">l</span>/<span class="m">g</span></span></span> ∫<sub>0</sub><sup>π/2</sup> <span class="fr"><span>d<span class="m">φ</span></span><span><span class="sq"><span class="rad">1 − <span class="m">k</span>² sin²<span class="m">φ</span></span></span></span></span> = 4 <span class="sq"><span class="rad"><span class="m">l</span>/<span class="m">g</span></span></span> <span class="m">K</span>(<span class="m">k</span>)</span>
+        <span class="m">K</span>(<span class="m">k</span>) is the complete elliptic integral of the first kind. This page evaluates it with the arithmetic–geometric mean.</li>
+      <li>Check the limit. For small <span class="m">k</span>, <span class="m">K</span> = (π/2)(1 + <span class="m">k</span>²/4 + 9<span class="m">k</span>⁴/64 + …) and <span class="m">k</span> ≈ <span class="m">θ</span><sub>0</sub>/2, which gives:
+        <span class="eq"><span class="m">T</span> ≈ 2π <span class="sq"><span class="rad"><span class="m">l</span>/<span class="m">g</span></span></span> (1 + <span class="m">θ</span><sub>0</sub>²/16 + 11<span class="m">θ</span><sub>0</sub>⁴/3072 + …)</span>
+        At small angles this returns the 2π√(<span class="m">l</span>/<span class="m">g</span>) used on the previous screen.</li>
+      <li>Project numbers at <span class="m">θ</span><sub>0</sub> = 70°, <span class="m">l</span> = 1.00 m: <span class="m">k</span> = sin 35° = 0.5736, 2<span class="m">K</span>(<span class="m">k</span>)/π = 1.1021, so <span class="m">T</span> = 2.006 × 1.1021 = 2.211 s. The small-angle formula gives 2.006 s.</li>
+    </ol></div></details>
+</section>
+
+<!-- ============ GEOMETRY ============ -->
+<section class="view geo" id="v-geo" aria-labelledby="h-geo">
+  <h2 id="h-geo">Arc length against straight-line displacement</h2>
+  <p class="lead">Simple harmonic motion needs the restoring force to scale with displacement. For small swings the curved path (arc) and the straight chord between the two ends are almost the same length. Trigonometry lets us measure exactly how much they differ.</p>
+  <div class="talk"><b>Presenting this screen</b><ul>
+    <li>Press the two project presets. 11° total swing: 0.02 cm apart. 140° total: 56.41 cm apart.</li>
+    <li>Use the tolerance slider to turn a vague idea ("small angle") into a number an engineer can design to.</li></ul></div>
+  <div class="cols">
+    <div class="panel"><svg id="geoSvg" aria-label="Isosceles triangle with arc and chord"></svg></div>
+    <div class="panel">
+      <div class="btns"><button class="btn" id="geoP1">Project case: 80 cm, 11°</button><button class="btn" id="geoP2">Project case: 100 cm, 140°</button></div>
+      <div class="ctl"><label for="geoR">Pendulum length r <output id="geoRO"></output></label><input id="geoR" type="range" min="10" max="150" step="1" value="80"></div>
+      <div class="ctl"><label for="geoA">Total swing angle Φ <output id="geoAO"></output></label><input id="geoA" type="range" min="2" max="170" step="1" value="11"></div>
+      <dl class="ro" id="geoRO2"></dl>
+    </div>
+  </div>
+  <div class="cols">
+    <div class="panel"><h3>How far apart arc and chord get</h3><svg id="plotGeo" aria-label="Percent difference against total swing angle"></svg></div>
+    <div class="panel"><h3>Design limit from a tolerance</h3>
+      <div class="ctl"><label for="geoT">Allowed difference <output id="geoTO"></output></label><input id="geoT" type="range" min="0.1" max="10" step="0.1" value="1"></div>
+      <dl class="ro" id="geoTR"></dl>
+      <div class="note geon" id="geoNote"></div>
+    </div>
+  </div>
+  <details class="deriv" open><summary>Working: arc, angle and chord for both project cases</summary><div class="in" id="geoDer"></div></details>
+</section>
+
+<!-- ============ HEAT ============ -->
+<section class="view heat" id="v-heat" aria-labelledby="h-heat">
+  <h2 id="h-heat">Does motion make a hot object lose heat faster?</h2>
+  <p class="lead">A hot bob was left still or swung in air for 40 seconds. Scrub time to see both cool, then see how the same data reads under Newton's law of cooling.</p>
+  <div class="talk"><b>Presenting this screen</b><ul>
+    <li>Moving bob: 16.33 °C lost. Still bob: 9.00 °C. That is 81.44% more.</li>
+    <li>The cooling-rate constant k removes the effect of the different start temperatures and lands near 1.7 times. Both views agree that motion helps.</li>
+    <li>Airflow past a surface is what a fan, a heat-sink or a heat exchanger provides.</li></ul></div>
+  <div class="cols">
+    <div class="panel"><svg id="plotHeat" aria-label="Temperature against time"></svg>
+      <div class="legend">
+        <span style="color:#3F5F99"><i class="sw sq"></i>Still bob (average)</span>
+        <span style="color:var(--heat)"><i class="sw dot"></i>Moving bob (average of 3 runs)</span>
+        <span style="color:var(--muted)"><i class="sw dot" style="width:6px;height:6px"></i>Individual moving runs</span>
+        <span style="color:var(--ink2)"><i class="sw dash"></i>Newton's-law fit</span>
+      </div>
+      <div class="bobs" id="heatBobs"></div>
+    </div>
+    <div class="panel">
+      <div class="ctl"><label for="hT">Time <output id="hTO"></output></label><input id="hT" type="range" min="0" max="40" step="1" value="0"></div>
+      <div class="ctl"><label for="hAmb">Assumed room temperature <output id="hAmbO"></output></label><input id="hAmb" type="range" min="20" max="36" step="0.5" value="28"></div>
+      <dl class="ro" id="heatRO"></dl>
+      <div class="note heatn">Room temperature was not recorded in the project, so it is an adjustable assumption here. The ratio of cooling rates barely moves between 25 °C and 30 °C.</div>
+    </div>
+  </div>
+  <details class="deriv" open><summary>Working: heat released and cooling-rate constant</summary><div class="in" id="heatDer"></div></details>
+</section>
+
+<!-- ============ INDUSTRY ============ -->
+<section class="view" id="v-ind" aria-labelledby="h-ind">
+  <h2 id="h-ind">Where the same three ideas are used</h2>
+  <p class="lead">Each card takes one result from the project and puts it into a real engineering setting, with a small calculator you can change live.</p>
+  <div class="talk"><b>Presenting this screen</b><ul>
+    <li>Pick the card closest to your audience. Each one runs on a formula already derived in this app.</li>
+    <li>Figures marked with a source are published numbers; calculators are illustrative.</li></ul></div>
+  <div class="cards">
+    <article class="card a"><h3>Timing and gravity measurement</h3>
+      <p class="tie">From the project: <b>g from a pendulum</b>. Real g changes with latitude, so instruments and standards must account for where they are.</p>
+      <div class="ctl"><label for="iLat">Latitude <output id="iLatO"></output></label><input id="iLat" type="range" min="0" max="90" step="0.1" value="6.3"></div>
+      <dl class="ro" id="iA"></dl>
+      <div class="res note geon" id="iAn"></div>
+      <p class="src">Gravity formula: International Gravity Formula 1980. Equator 9.781 m/s² and poles 9.832 m/s²: <a href="https://farside.ph.utexas.edu/teaching/355/Surveyhtml/node63.html">Fitzpatrick, UT Austin</a>.</p></article>
+
+    <article class="card b"><h3>Cooling electronics and process heat</h3>
+      <p class="tie">From the project: <b>moving air removes heat faster</b>. Q = hAΔT, and a fan raises h.</p>
+      <div class="ctl heat"><label for="iH">Heat-transfer coefficient h <output id="iHO"></output></label><input id="iH" type="range" min="5" max="250" step="1" value="25" style="accent-color:var(--heat)">
+        <div class="band"><i style="left:0;width:8.2%;background:#7C94C9"></i><i style="left:8.2%;width:91.8%;background:#E58AA0;opacity:.55"></i></div>
+        <div class="bandl"><span>Still air 5–25</span><span>Forced air 25–250 W/m²K</span></div></div>
+      <div class="ctl"><label for="iArea">Surface area <output id="iAreaO"></output></label><input id="iArea" type="range" min="5" max="500" step="5" value="100" style="accent-color:var(--heat)"></div>
+      <div class="ctl"><label for="iDT">Surface above air <output id="iDTO"></output></label><input id="iDT" type="range" min="5" max="80" step="1" value="40" style="accent-color:var(--heat)"></div>
+      <dl class="res ro" id="iB"></dl>
+      <p class="src">Typical h ranges: Çengel, <i>Heat and Mass Transfer</i> (2020), <a href="https://ffden-2.phys.uaf.edu/webproj/212_spring_2021/Evan_Joyce/Heat%20transfer%20via%20convection.html">as tabulated here</a>. The calculator is illustrative.</p></article>
+
+    <article class="card c"><h3>Damping building sway</h3>
+      <p class="tie">From the project: <b>T² against l</b> and <b>large-swing limits</b>. A pendulum-type tuned mass damper is hung to match the building's period.</p>
+      <div class="ctl"><label for="iTb">Building sway period <output id="iTbO"></output></label><input id="iTb" type="range" min="2" max="10" step="0.1" value="6"></div>
+      <div class="ctl"><label for="iX">Damper swing from centre <output id="iXO"></output></label><input id="iX" type="range" min="0.1" max="1.5" step="0.05" value="1"></div>
+      <dl class="res ro" id="iC"></dl>
+      <p class="src">Taipei 101: 660-tonne damper between the 87th and 92nd floors, up to 1.5 m travel, 1 m reached in Typhoon Soudelor (2015): <a href="https://www.guinnessworldrecords.com/world-records/774616-largest-tuned-mass-damper">Guinness World Records</a>. Reported to cut building motion by up to 40%: <a href="https://businessinsider.nl/this-660-ton-pendulum-protects-taiwans-tallest-skyscraper-from-earthquakes/">Business Insider</a>.</p></article>
+  </div>
+</section>
+
+<!-- ============ RELIABILITY ============ -->
+<section class="view" id="v-rel" aria-labelledby="h-rel">
+  <h2 id="h-rel">How far to trust the numbers</h2>
+  <p class="lead">Where the measurements are strong, where they are weak, and the changes that would tighten them. The size of each effect comes from the project's own data.</p>
+  <div class="talk"><b>Presenting this screen</b><ul>
+    <li>Be direct about limits: experts trust a result more when its weak points are named.</li>
+    <li>Most fixes are simple: time more oscillations, record room temperature, and match start temperatures.</li></ul></div>
+  <div class="panel"><div class="tw"><table id="relTab"></table></div></div>
+  <div class="panel"><h3>Next version of the experiment</h3>
+    <ol style="margin:0;padding-left:1.2em">
+      <li>Time 20 oscillations at the large angle too. Five oscillations leave a 0.28 s spread between the three runs.</li>
+      <li>Measure length to the centre of the bob, and fit all points with an intercept to check for offset.</li>
+      <li>Start the still and moving bobs from the same temperature, record room temperature, and repeat the still run three times.</li>
+      <li>Film the swings on a phone in slow motion and read the period from frames instead of a hand stopwatch.</li>
+    </ol></div>
+</section>
+
+<div class="stepnav"><button class="btn" id="prev">Back</button><span id="stepTxt"></span><button class="btn pri" id="next">Next</button></div>
+
+<footer class="foot">
+  Project: Simple Harmonic Motion, Foundation Programme, Kolej MARA Kuala Nerang, session 2026/2027, class E06. Experimental data are the group's own measurements. Large-angle formula: Lima &amp; Arun (2006), <i>American Journal of Physics</i> 74(10), 892–895. Percentage errors use the rounded values shown, as in the written report.
+</footer>
+</main>
+
+<script>
+"use strict";
+/* ---------- helpers ---------- */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const PI=Math.PI, rad=d=>d*PI/180, deg=r=>r*180/PI, G0=9.81;
+const fx=(x,n=2)=>{const s=Number(x).toFixed(n);return s.replace('-','−');};
+const sum=a=>a.reduce((p,c)=>p+c,0);
+const REDUCED=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fr=(a,b)=>`<span class="fr"><span>${a}</span><span>${b}</span></span>`;
+function K(k){let a=1,b=Math.sqrt(1-k*k);for(let i=0;i<40;i++){const an=(a+b)/2;b=Math.sqrt(a*b);a=an;}return PI/(2*a);}
+const ratioExact=t0=>2*K(Math.sin(t0/2))/PI;
+const ratioLA=t0=>{const c=Math.cos(t0/2);return -Math.log(c)/(1-c);};
+const ratioSeries=t0=>1+t0*t0/16;
+const gLat=p=>{const s=Math.sin(rad(p)),s2=Math.sin(rad(2*p));return 9.780327*(1+0.0053024*s*s-0.0000058*s2*s2);};
+function niceTicks(a,b,step){const r=[];for(let v=Math.ceil(a/step-1e-9)*step;v<=b+1e-9;v+=step)r.push(+v.toFixed(6));return r;}
+
+/* ---------- project data (from the written report) ---------- */
+const REPORT_ROWS=[
+ {l:50,r:[27.72,28.56,28.72],ta:28.33},{l:60,r:[32.22,32.04,32.09],ta:32.12},{l:70,r:[34.22,34.16,34.22],ta:34.20},
+ {l:80,r:[36.60,36.70,36.75],ta:36.68},{l:90,r:[38.87,38.97,38.99],ta:38.94}];
+const BIG={L:1.00,N:5,runs:[11.66,11.38,11.40],ta:11.48,amp:70};
+const HT={t:[0,10,20,30,40],st:[58.9,59.3,57.5,53.2,49.9],mv:[62.6,58.7,52.4,50.8,46.3],
+ runs:[[63.9,60.0,64.0],[57.3,59.5,59.4],[49.9,56.4,50.8],[46.9,55.8,49.7],[39.1,51.5,48.3]],m:0.06506,c:380};
+const dStatic=9.00, dMoving=16.33;
+const gTwo=+(4*PI*PI/4.40).toFixed(2);                 // 8.97
+const gBigRep=+(4*PI*PI*BIG.L/Math.pow(BIG.ta/BIG.N,2)).toFixed(3); // 7.489
+const errPct=(ref,g)=>(ref-g)/ref*100;
+
+/* ---------- plot helper ---------- */
+let plotId=0;
+class Plot{
+  constructor(svg,o){this.svg=svg;this.o=o;this.id='p'+(++plotId);}
+  begin(){
+    const o=this.o,W=Math.max(280,this.svg.parentElement.clientWidth-(o.pad||0));
+    const H=Math.round(Math.min(o.hmax||380,Math.max(230,W*(o.aspect||.6))));
+    this.W=W;this.H=H;this.m={l:o.ml||54,r:16,t:14,b:o.mb||44};
+    this.svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    let s=`<clipPath id="${this.id}"><rect x="${this.m.l}" y="${this.m.t}" width="${W-this.m.l-this.m.r}" height="${H-this.m.t-this.m.b}"/></clipPath>`;
+    for(const t of niceTicks(o.x[0],o.x[1],o.xs)) s+=`<line class="gl" x1="${this.X(t)}" y1="${this.m.t}" x2="${this.X(t)}" y2="${H-this.m.b}"/><text class="tk" x="${this.X(t)}" y="${H-this.m.b+16}" text-anchor="middle">${o.xf?o.xf(t):t}</text>`;
+    for(const t of niceTicks(o.y[0],o.y[1],o.ys)) s+=`<line class="gl" x1="${this.m.l}" y1="${this.Y(t)}" x2="${W-this.m.r}" y2="${this.Y(t)}"/><text class="tk" x="${this.m.l-7}" y="${this.Y(t)+4}" text-anchor="end">${o.yf?o.yf(t):t}</text>`;
+    s+=`<line class="ax" x1="${this.m.l}" y1="${H-this.m.b}" x2="${W-this.m.r}" y2="${H-this.m.b}"/><line class="ax" x1="${this.m.l}" y1="${this.m.t}" x2="${this.m.l}" y2="${H-this.m.b}"/>`;
+    s+=`<text class="al" x="${(this.m.l+W-this.m.r)/2}" y="${H-6}" text-anchor="middle">${o.xl}</text>`;
+    s+=`<text class="al" transform="translate(14 ${(this.m.t+H-this.m.b)/2}) rotate(-90)" text-anchor="middle">${o.yl}</text>`;
+    this.s=s+`<g clip-path="url(#${this.id})">`;return this;
+  }
+  X(v){return this.m.l+(v-this.o.x[0])/(this.o.x[1]-this.o.x[0])*(this.W-this.m.l-this.m.r);}
+  Y(v){return this.H-this.m.b-(v-this.o.y[0])/(this.o.y[1]-this.o.y[0])*(this.H-this.m.t-this.m.b);}
+  line(x1,y1,x2,y2,st){this.s+=`<line x1="${this.X(x1)}" y1="${this.Y(y1)}" x2="${this.X(x2)}" y2="${this.Y(y2)}" ${st}/>`;return this;}
+  curve(fn,a,b,n,st){let d='';for(let i=0;i<=n;i++){const x=a+(b-a)*i/n;d+=(i?'L':'M')+this.X(x).toFixed(1)+' '+this.Y(fn(x)).toFixed(1);}this.s+=`<path d="${d}" fill="none" ${st}/>`;return this;}
+  dot(x,y,r,st,title){this.s+=`<circle cx="${this.X(x)}" cy="${this.Y(y)}" r="${r}" ${st}>${title?`<title>${title}</title>`:''}</circle>`;return this;}
+  sq(x,y,r,st,title){this.s+=`<rect x="${this.X(x)-r}" y="${this.Y(y)-r}" width="${2*r}" height="${2*r}" ${st}>${title?`<title>${title}</title>`:''}</rect>`;return this;}
+  text(x,y,t,st,anchor='start'){this.s+=`<text x="${this.X(x)}" y="${this.Y(y)}" text-anchor="${anchor}" ${st}>${t}</text>`;return this;}
+  end(){this.svg.innerHTML=this.s+'</g>';}
+}
+
+/* ---------- pendulum race animation ---------- */
+const instances=[];
+class Race{
+  constructor(o){Object.assign(this,o);this.playing=!REDUCED;this.window=6;instances.push(this);
+    this.t=0;this.th0v=this.th0();this.th=this.th0v;this.ths=this.th0v;this.w=0;this.buf=[];this.layout();this.reset();}
+  layout(){
+    const W=Math.max(240,this.pend.parentElement.clientWidth-(this.pad||0));this.W=W;
+    const H=Math.round(Math.min(330,Math.max(250,W*.72)));this.H=H;
+    this.px=W/2;this.py=24;this.Lpx=H-74;
+    this.pend.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    this.pend.innerHTML=`<line class="ceil" x1="${W/2-56}" y1="${this.py}" x2="${W/2+56}" y2="${this.py}"/><path class="range" d=""/>
+      <line class="rod shm" x1="${this.px}" y1="${this.py}" x2="${this.px}" y2="${this.py+this.Lpx}"/><circle class="bob shm" r="14"/>
+      <line class="rod ex" x1="${this.px}" y1="${this.py}" x2="${this.px}" y2="${this.py+this.Lpx}"/><circle class="bob ex" r="14"/><circle class="pivot" cx="${this.px}" cy="${this.py}" r="4"/>`;
+    const q=s=>this.pend.querySelector(s);
+    this.e={rEx:q('.rod.ex'),bEx:q('.bob.ex'),rSh:q('.rod.shm'),bSh:q('.bob.shm'),rg:q('.range')};
+    this.draw();
+  }
+  reset(){this.t=0;this.th0v=this.th0();this.th=this.th0v;this.w=0;this.ths=this.th0v;this.buf=[];this.draw();}
+  step(dt){
+    const g=G0,L=this.L(),a=x=>-(g/L)*Math.sin(x);let n=Math.max(1,Math.ceil(dt/0.002)),h=dt/n,th=this.th,w=this.w;
+    for(let i=0;i<n;i++){
+      const k1t=w,k1w=a(th),k2t=w+h/2*k1w,k2w=a(th+h/2*k1t),k3t=w+h/2*k2w,k3w=a(th+h/2*k2t),k4t=w+h*k3w,k4w=a(th+h*k3t);
+      th+=h/6*(k1t+2*k2t+2*k3t+k4t);w+=h/6*(k1w+2*k2w+2*k3w+k4w);
+    }
+    this.th=th;this.w=w;this.t+=dt;this.ths=this.th0v*Math.cos(Math.sqrt(g/L)*this.t);
+    this.buf.push([this.t,this.th,this.ths]);while(this.buf.length&&this.buf[0][0]<this.t-this.window)this.buf.shift();
+  }
+  tick(dt){this.step(dt);this.draw();}
+  draw(){
+    const e=this.e,px=this.px,py=this.py,Lp=this.Lpx;
+    const pos=(th)=>[px+Lp*Math.sin(th),py+Lp*Math.cos(th)];
+    let [x,y]=pos(this.th);e.rEx.setAttribute('x2',x);e.rEx.setAttribute('y2',y);e.bEx.setAttribute('cx',x);e.bEx.setAttribute('cy',y);
+    [x,y]=pos(this.ths);e.rSh.setAttribute('x2',x);e.rSh.setAttribute('y2',y);e.bSh.setAttribute('cx',x);e.bSh.setAttribute('cy',y);
+    const a=this.th0v,[x1,y1]=pos(-a),[x2,y2]=pos(a);e.rg.setAttribute('d',`M${x1} ${y1}A${Lp} ${Lp} 0 0 0 ${x2} ${y2}`);
+    this.drawTrace();
+  }
+  drawTrace(){
+    const W=this.W,H=130,m={l:34,r:8,t:8,b:16},amp=Math.max(0.05,this.th0v)*1.15,tm=this.t;
+    const X=t=>m.l+(t-(tm-this.window))/this.window*(W-m.l-m.r),Y=v=>m.t+(H-m.t-m.b)*(0.5-v/(2*amp));
+    let s=`<line class="gl" x1="${m.l}" x2="${W-m.r}" y1="${Y(0)}" y2="${Y(0)}"/><line class="ax" x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H-m.b}"/>`;
+    s+=`<text class="tk" x="${m.l-4}" y="${Y(this.th0v)+4}" text-anchor="end">+${Math.round(deg(this.th0v))}°</text><text class="tk" x="${m.l-4}" y="${Y(-this.th0v)+4}" text-anchor="end">−${Math.round(deg(this.th0v))}°</text>`;
+    s+=`<text class="tk" x="${W-m.r}" y="${H-3}" text-anchor="end">time, last ${this.window} s</text>`;
+    const path=(i)=>this.buf.map((p,k)=>(k?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[i]).toFixed(1)).join('');
+    if(this.buf.length>1){s+=`<path class="trc" d="${path(2)}" stroke="var(--geo)" stroke-dasharray="5 4"/><path class="trc" d="${path(1)}" stroke="var(--phys)"/>`;}
+    this.trace.setAttribute('viewBox',`0 0 ${W} ${H}`);this.trace.innerHTML=s;
+  }
+  visible(){return this.pend.getClientRects().length>0;}
+}
+let lastT=performance.now();
+function loop(now){const dt=Math.min(0.05,(now-lastT)/1000);lastT=now;
+  for(const r of instances) if(r.playing&&r.visible()) r.tick(dt);
+  requestAnimationFrame(loop);}
+requestAnimationFrame(loop);
+
+/* ---------- navigation ---------- */
+const SECS=[{id:'home',t:'Overview'},{id:'g',t:'Measuring g'},{id:'big',t:'Large swing'},{id:'geo',t:'Arc and chord'},{id:'heat',t:'Heat loss'},{id:'ind',t:'In industry'},{id:'rel',t:'Reliability'}];
+let cur=0;
+const renders={};
+function buildTabs(){
+  $('#tabs').innerHTML=SECS.map((s,i)=>`<button role="tab" data-i="${i}" aria-selected="false">${s.t}</button>`).join('');
+  $$('#tabs button').forEach(b=>b.addEventListener('click',()=>go(+b.dataset.i)));
+}
+function go(i,noScroll){
+  i=Math.max(0,Math.min(SECS.length-1,i));cur=i;
+  $$('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+SECS[i].id));
+  $$('#tabs button').forEach((b,k)=>{b.setAttribute('aria-selected',k===i);if(k===i)b.scrollIntoView({block:'nearest',inline:'center'});});
+  $('#progress i').style.width=((i+1)/SECS.length*100)+'%';
+  $('#stepTxt').textContent=`${i+1} of ${SECS.length}: ${SECS[i].t}`;
+  $('#prev').style.visibility=i?'visible':'hidden';$('#next').style.visibility=i<SECS.length-1?'visible':'hidden';
+  try{renders[SECS[i].id]&&renders[SECS[i].id]();}catch(e){console.error(e);}
+  if(!noScroll)window.scrollTo({top:0,behavior:REDUCED?'auto':'smooth'});
+  try{location.hash=SECS[i].id;}catch(e){}
+}
+function setMode(guided){
+  document.body.classList.toggle('guided',guided);
+  $('#mGuided').setAttribute('aria-pressed',guided);$('#mExplore').setAttribute('aria-pressed',!guided);
+  try{localStorage.setItem('hml-mode',guided?'g':'e');}catch(e){}
+}
+$('#mGuided').onclick=()=>setMode(true);$('#mExplore').onclick=()=>setMode(false);
+function setNotes(on){document.body.classList.toggle('notes',on);$('#mNotes').setAttribute('aria-pressed',on);try{localStorage.setItem('hml-notes',on?'1':'0');}catch(e){}}
+$('#mNotes').onclick=()=>setNotes(!document.body.classList.contains('notes'));
+$('#prev').onclick=()=>go(cur-1);$('#next').onclick=()=>go(cur+1);
+document.addEventListener('keydown',e=>{
+  if(!document.body.classList.contains('guided'))return;
+  if(/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))return;
+  if(e.key==='ArrowRight')go(cur+1);else if(e.key==='ArrowLeft')go(cur-1);
+});
+$$('[data-go]').forEach(b=>b.addEventListener('click',()=>go(SECS.findIndex(s=>s.id===b.dataset.go))));
+function bindRange(id,outId,fmt,cb){const r=$('#'+id),o=$('#'+outId);const upd=()=>{o.textContent=fmt(+r.value);};r.addEventListener('input',()=>{upd();cb&&cb();});upd();}
+
+/* ================= OVERVIEW ================= */
+const ov=new Race({pend:$('#ovPend'),trace:$('#ovTrace'),th0:()=>rad(+$('#ovAmp').value),L:()=>1});
+bindRange('ovAmp','ovAmpO',v=>v+'°',()=>ov.reset());
+$('#ovPlay').onclick=function(){ov.playing=!ov.playing;this.textContent=ov.playing?'Pause':'Play';};
+$('#ovReset').onclick=()=>ov.reset();
+if(REDUCED)$('#ovPlay').textContent='Play';
+renders.home=()=>{
+  ov.layout();ov.reset();
+  $('#tg').textContent=fx(gTwo,2)+' m/s²';$('#tgd').textContent=`${fx(errPct(G0,gTwo),2)}% below 9.81`;
+  $('#tb').textContent=fx(BIG.ta/BIG.N,3)+' s';$('#tbd').textContent=`period at 70°, against ${fx(2*PI*Math.sqrt(BIG.L/G0),2)} s from the small-angle formula`;
+  $('#tm').textContent='0.02 cm';$('#tmd').textContent='arc and chord gap at 11°, against 56.41 cm at 140°';
+  $('#th').textContent='+'+fx(((dMoving/dStatic)-1)*100,2)+'%';$('#thd').textContent=`faster cooling: ${fx(dMoving,2)} °C lost against ${fx(dStatic,2)} °C in 40 s`;
+};
+
+/* ================= MEASURING g ================= */
+const gS={rows:REPORT_ROWS.map(r=>({l:r.l,t:r.ta,r:r.r})),N:20,ref:'std',method:'two'};
+const gRefVal=()=>gS.ref==='std'?G0:gLat(+$('#gLat').value);
+function gAnalyse(){
+  const pts=gS.rows.filter(r=>r.l>0&&r.t>0).map(r=>{const T=r.t/gS.N;return{l:r.l/100,T,T2:T*T};}).sort((a,b)=>a.l-b.l);
+  if(pts.length<2)return null;
+  const n=pts.length,sx=sum(pts.map(p=>p.l)),sy=sum(pts.map(p=>p.T2)),sxy=sum(pts.map(p=>p.l*p.T2)),sxx=sum(pts.map(p=>p.l*p.l));
+  const den=n*sxx-sx*sx;const mLS=den?(n*sxy-sx*sy)/den:NaN,cLS=(sy-mLS*sx)/n;
+  const ym=sy/n,sst=sum(pts.map(p=>Math.pow(p.T2-ym,2))),sse=sum(pts.map(p=>Math.pow(p.T2-(mLS*p.l+cLS),2)));
+  const r2=sst?1-sse/sst:1;
+  let a=pts.find(p=>Math.abs(p.l-0.70)<1e-6),b=pts.find(p=>Math.abs(p.l-0.80)<1e-6);if(!a||!b){a=pts[0];b=pts[n-1];}
+  const a2=+a.T2.toFixed(2),b2=+b.T2.toFixed(2);
+  const mTwo=(b2-a2)/(b.l-a.l);
+  return{pts,mLS,cLS,r2,a:{l:a.l,y:a2},b:{l:b.l,y:b2},mTwo};
+}
+function renderG(){
+  const A=gAnalyse(),ref=gRefVal();
+  $('#gLO').textContent=fx(+$('#gL').value,2)+' m';$('#gLatO').textContent=fx(+$('#gLat').value,1)+'°';
+  if(!A){$('#gRO').innerHTML='<dt>Need at least two rows</dt><dd></dd>';return;}
+  const m=gS.method==='two'?A.mTwo:A.mLS, c=gS.method==='two'?A.a.y-A.mTwo*A.a.l:A.cLS;
+  const g=+(4*PI*PI/m).toFixed(2),err=errPct(ref,g);
+  const xmax=Math.max(1.1,Math.ceil(Math.max(...A.pts.map(p=>p.l))*1.15*10)/10),ymax=Math.ceil(Math.max(...A.pts.map(p=>p.T2),4*PI*PI/ref*xmax)*1.05);
+  const P=new Plot($('#plotG'),{x:[0,xmax],y:[0,ymax],xs:xmax>1.5?.5:.2,ys:ymax>6?2:1,xl:'length l (m)',yl:'T² (s²)',xf:v=>v.toFixed(1)}).begin();
+  P.curve(x=>4*PI*PI/ref*x,0,xmax,2,'stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 5"');
+  P.curve(x=>m*x+c,0,xmax,2,'stroke="var(--ink)" stroke-width="2"');
+  const sel=+$('#gL').value,Tsel=2*PI*Math.sqrt(sel/ref);
+  P.sq(sel,Tsel*Tsel,6,'fill="var(--heat)"',`l = ${fx(sel,2)} m, T = ${fx(Tsel,3)} s`);
+  A.pts.forEach(p=>P.dot(p.l,p.T2,5,'fill="var(--phys)" stroke="#fff" stroke-width="1.5"',`l = ${fx(p.l,2)} m, T² = ${fx(p.T2,3)} s²`));
+  if(gS.method==='two'){
+    P.line(A.a.l,A.a.y,A.b.l,A.a.y,'stroke="var(--phys)" stroke-width="1.5"').line(A.b.l,A.a.y,A.b.l,A.b.y,'stroke="var(--phys)" stroke-width="1.5"');
+    P.dot(A.a.l,A.a.y,7,'fill="none" stroke="var(--ink)" stroke-width="1.5"').dot(A.b.l,A.b.y,7,'fill="none" stroke="var(--ink)" stroke-width="1.5"');
+    P.text((A.a.l+A.b.l)/2,A.a.y,'Δl',`class="dl" fill="var(--phys)" dy="14"`,'middle').text(A.b.l,(A.a.y+A.b.y)/2,'ΔT²',`class="dl" fill="var(--phys)" dx="6"`);
+  }
+  P.end();
+  const T=2*PI*Math.sqrt(sel/ref);
+  $('#gRO').innerHTML=`<dt>Gradient m</dt><dd>${fx(m,2)} s²/m</dd><dt>g = 4π² ÷ m</dt><dd class="big" style="font-size:1.5rem">${fx(g,2)} m/s²</dd>
+   <dt>Reference g</dt><dd>${fx(ref,3)} m/s²</dd><dt>Error against reference</dt><dd>${fx(err,2)}%</dd><div class="hr"></div>
+   <dt>Best-fit R²</dt><dd>${fx(A.r2,4)}</dd><dt>Best-fit intercept</dt><dd>${fx(A.cLS,3)} s²</dd><div class="hr"></div>
+   <dt>Period at ${fx(sel,2)} m (reference g)</dt><dd>${fx(T,3)} s</dd>`;
+  const off=A.cLS*ref/(4*PI*PI)*100;
+  $('#gNote').innerHTML=Math.abs(A.cLS)>0.05?`The best-fit line misses the origin by ${fx(A.cLS,2)} s². That is consistent with the measured length being about ${fx(Math.abs(off),1)} cm ${off<0?'longer':'shorter'} than the true swinging length (for example, measuring to the wrong point on the bob). A length offset changes the gradient method's answer; it is a systematic error, not random scatter.`:`The best-fit line passes close to the origin (intercept ${fx(A.cLS,2)} s²), so the lengths look consistent.`;
+}
+function gTable(){
+  const t=$('#gTab');
+  t.innerHTML=`<thead><tr><th>l (cm)</th><th>t₁ (s)</th><th>t₂ (s)</th><th>t₃ (s)</th><th>t average (s)</th><th>T = t ÷ N (s)</th><th>T² (s²)</th></tr></thead><tbody>`+
+  gS.rows.map((r,i)=>`<tr><td><input type="number" step="1" value="${r.l}" data-i="${i}" data-k="l" aria-label="Length row ${i+1}"></td>${[0,1,2].map(k=>`<td class="mu">${r.r?fx(r.r[k],2):'–'}</td>`).join('')}<td><input type="number" step="0.01" value="${r.t}" data-i="${i}" data-k="t" aria-label="Average time row ${i+1}"></td><td id="gT${i}"></td><td id="gT2${i}"></td></tr>`).join('')+'</tbody>';
+  $$('input',t).forEach(inp=>inp.addEventListener('input',()=>{const r=gS.rows[+inp.dataset.i];r[inp.dataset.k]=parseFloat(inp.value)||0;r.r=null;gCells();renderG();}));
+  gCells();
+}
+function gCells(){gS.rows.forEach((r,i)=>{const T=r.t/gS.N;const a=$('#gT'+i),b=$('#gT2'+i);if(a){a.textContent=r.t>0?fx(T,4):'–';b.textContent=r.t>0?fx(T*T,4):'–';}});}
+$$('#gMethod button').forEach(b=>b.onclick=()=>{gS.method=b.dataset.v;$$('#gMethod button').forEach(x=>x.setAttribute('aria-pressed',x===b));renderG();});
+$('#gRef').onchange=function(){gS.ref=this.value;renderG();};
+bindRange('gLat','gLatO',v=>fx(v,1)+'°',renderG);bindRange('gL','gLO',v=>fx(v,2)+' m',renderG);
+bindRange('gN','gNO',v=>v+'',()=>{gS.N=+$('#gN').value;gCells();renderG();});
+$('#gAdd').onclick=()=>{gS.rows.push({l:100,t:40,r:null});gTable();renderG();};
+$('#gDel').onclick=()=>{if(gS.rows.length>2){gS.rows.pop();gTable();renderG();}};
+$('#gReset').onclick=()=>{gS.rows=REPORT_ROWS.map(r=>({l:r.l,t:r.ta,r:r.r}));gS.N=20;$('#gN').value=20;$('#gNO').textContent='20';gTable();renderG();};
+renders.g=()=>{gTable();renderG();};
+
+/* ================= LARGE SWING ================= */
+const big=new Race({pend:$('#bigPend'),trace:$('#bigTrace'),th0:()=>rad(+$('#bigAmp').value),L:()=>+$('#bigL').value});
+function renderBig(){
+  const a=rad(+$('#bigAmp').value),L=+$('#bigL').value,T0=2*PI*Math.sqrt(L/G0),rE=ratioExact(a);
+  $('#bigRO').innerHTML=`<dt>Small-angle period 2π√(l/g)</dt><dd>${fx(T0,3)} s</dd><dt>Exact period</dt><dd>${fx(T0*rE,3)} s</dd>
+   <dt>Exact ÷ small-angle</dt><dd>${fx(rE,4)}</dd><dt>Real period is longer by</dt><dd>${fx((rE-1)*100,2)}%</dd><div class="hr"></div>
+   <dt>1 + θ₀²/16 estimate</dt><dd>${fx(ratioSeries(a),4)}</dd><dt>Lima–Arun closed form</dt><dd>${fx(ratioLA(a),4)}</dd><div class="hr"></div>
+   <dt>g read low by (small-angle formula)</dt><dd>${fx((1-1/(rE*rE))*100,1)}%</dd>`;
+  const P=new Plot($('#plotBig'),{x:[0,120],y:[1,1.4],xs:20,ys:.1,xl:'release angle θ₀ (degrees)',yl:'period ÷ small-angle period',yf:v=>v.toFixed(1),xf:v=>v+'°',aspect:.5}).begin();
+  P.line(0,1,120,1,'stroke="var(--muted)" stroke-width="1.5"');
+  P.curve(d=>ratioSeries(rad(d)),0,120,60,'stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 5"');
+  P.curve(d=>ratioLA(rad(Math.max(d,1e-6))),0.1,120,60,'stroke="var(--geo)" stroke-width="2" stroke-dasharray="2 4"');
+  P.curve(d=>ratioExact(rad(d)),0,120,60,'stroke="var(--phys)" stroke-width="3"');
+  const sel=+$('#bigAmp').value;P.line(sel,1,sel,1.4,'stroke="var(--ink2)" stroke-width="1" stroke-dasharray="2 3"').dot(sel,rE,6,'fill="#fff" stroke="var(--phys)" stroke-width="3"');
+  const rm=(BIG.ta/BIG.N)/(2*PI*Math.sqrt(BIG.L/G0));
+  P.dot(70,rm,6,'fill="var(--heat)" stroke="#fff" stroke-width="1.5"',`Measured: ${fx(rm,3)}`).text(70,rm,'measured',`class="dl" fill="var(--heat)" dx="-10" dy="4"`,'end');
+  P.dot(10,ratioExact(rad(10)),4,'fill="var(--ink)"').text(10,ratioExact(rad(10)),'10°: +0.19%',`class="tk" dx="6" dy="-8"`);
+  P.end();
+}
+function renderBudget(){
+  const r70=ratioExact(rad(70)),T0=2*PI*Math.sqrt(BIG.L/G0),Tm=BIG.ta/BIG.N;
+  const gCorr=4*PI*PI*BIG.L*r70*r70/(Tm*Tm),totalErr=errPct(G0,gBigRep);
+  const physics=(1-1/(r70*r70))*100,rest=totalErr-physics,left=errPct(G0,gCorr);
+  $('#bigBudget').innerHTML=`<p>Measured: five oscillations took ${fx(BIG.ta,2)} s (runs ${BIG.runs.map(v=>fx(v,2)).join(', ')} s), so T = ${fx(Tm,3)} s and g = 4π²l/T² = <b>${fx(gBigRep,3)} m/s²</b>, which is <b>${fx(totalErr,2)}%</b> below 9.81.</p>
+   <div class="bar2" role="img" aria-label="Error budget"><div style="width:${physics/totalErr*100}%;background:var(--phys)">${fx(physics,1)} pts: large angle</div><div style="width:${rest/totalErr*100}%;background:var(--heat)">${fx(rest,1)} pts: other</div></div>
+   <p class="why">The first part is physics, computed from the exact period (${fx(T0*r70,3)} s at 70°). The rest is timing, length and counting error. Applying the exact formula to the same readings gives g = ${fx(gCorr,2)} m/s², ${fx(left,1)}% from 9.81. The remaining gap is about what a hand stopwatch gives over only 5 swings (a 0.25 s error is 2.2% of 11.48 s, and doubles to 4.4% in g).</p>`;
+}
+bindRange('bigAmp','bigAmpO',v=>v+'°',()=>{big.reset();renderBig();});
+bindRange('bigL','bigLO',v=>fx(v,2)+' m',()=>{big.reset();renderBig();});
+$('#bigPlay').onclick=function(){big.playing=!big.playing;this.textContent=big.playing?'Pause':'Play';};
+$('#bigReset').onclick=()=>big.reset();
+if(REDUCED)$('#bigPlay').textContent='Play';
+renders.big=()=>{big.layout();big.reset();renderBig();renderBudget();};
+
+/* ================= GEOMETRY ================= */
+const geoGap=phi=>1-Math.sin(rad(phi)/2)/(rad(phi)/2); // fractional (s-d)/s
+function renderGeo(){
+  const r=+$('#geoR').value,phi=+$('#geoA').value;
+  $('#geoRO').textContent=r+' cm';$('#geoAO').textContent=phi+'°';
+  const s=r*rad(phi),base=(180-phi)/2,d=r*Math.sin(rad(phi))/Math.sin(rad(base)),diff=s-d;
+  $('#geoRO2').innerHTML=`<dt>Base angles (180° − Φ) ÷ 2</dt><dd>${fx(base,1)}°</dd><dt>Arc length s = rΦ</dt><dd>${fx(s,2)} cm</dd>
+   <dt>Chord d (sine rule)</dt><dd>${fx(d,2)} cm</dd><dt>Difference s − d</dt><dd>${fx(diff,2)} cm</dd><dt>As a share of the arc</dt><dd>${fx(diff/s*100,2)}%</dd><div class="hr"></div>
+   <dt>Release angle Φ ÷ 2</dt><dd>${fx(phi/2,1)}°</dd><dt>Period longer than formula by</dt><dd>${fx((ratioExact(rad(phi/2))-1)*100,3)}%</dd>`;
+  const svg=$('#geoSvg'),W=Math.max(260,svg.parentElement.clientWidth-32),H=Math.round(Math.min(380,Math.max(260,W*.78)));
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const half=rad(phi/2),Rpx=Math.min(H-70,(W-40)/(2*Math.max(Math.sin(half),.2))*1.0,H-70),ax=W/2,ay=26;
+  const ex=ax+Rpx*Math.sin(half),exL=ax-Rpx*Math.sin(half),ey=ay+Rpx*Math.cos(half),large=phi>180?1:0;
+  svg.innerHTML=`<path d="M${ax} ${ay}L${exL} ${ey}A${Rpx} ${Rpx} 0 ${large} 0 ${ex} ${ey}Z" fill="var(--geo-bg)" stroke="none"/>
+   <line x1="${ax}" y1="${ay}" x2="${exL}" y2="${ey}" stroke="var(--ink)" stroke-width="2"/><line x1="${ax}" y1="${ay}" x2="${ex}" y2="${ey}" stroke="var(--ink)" stroke-width="2"/>
+   <path d="M${exL} ${ey}A${Rpx} ${Rpx} 0 ${large} 0 ${ex} ${ey}" fill="none" stroke="var(--geo)" stroke-width="4"/>
+   <line x1="${exL}" y1="${ey}" x2="${ex}" y2="${ey}" stroke="var(--heat)" stroke-width="3" stroke-dasharray="7 5"/>
+   <path d="M${ax-26*Math.sin(half)} ${ay+26*Math.cos(half)}A26 26 0 0 0 ${ax+26*Math.sin(half)} ${ay+26*Math.cos(half)}" fill="none" stroke="var(--ink2)"/>
+   <text class="al" x="${ax+14}" y="${ay+22}">Φ = ${phi}°</text>
+   <text class="al" x="${(ax+ex)/2+10}" y="${(ay+ey)/2}" fill="var(--ink)">r = ${r} cm</text>
+   <text class="dl" x="${W/2}" y="${H-30}" text-anchor="middle" fill="var(--heat)">dashed: chord d = ${fx(d,2)} cm</text>
+   <text class="dl" x="${W/2}" y="${H-10}" text-anchor="middle" fill="var(--geo)">solid curve: arc s = ${fx(s,2)} cm</text>`;
+  const P=new Plot($('#plotGeo'),{x:[0,170],y:[0,30],xs:30,ys:5,xl:'total swing angle Φ (degrees)',yl:'(s − d) ÷ s  (%)',xf:v=>v+'°',yf:v=>v+'%',pad:32,aspect:.62}).begin();
+  P.curve(p=>geoGap(Math.max(p,.01))*100,0.5,170,80,'stroke="var(--geo)" stroke-width="3"');
+  const tol=+$('#geoT').value;P.line(0,tol,170,tol,'stroke="var(--ink2)" stroke-width="1" stroke-dasharray="3 4"');
+  [[11,'11°'],[140,'140°']].forEach(([p,l])=>P.dot(p,geoGap(p)*100,5,'fill="var(--heat)" stroke="#fff" stroke-width="1.5"').text(p,geoGap(p)*100,l,'class="dl" fill="var(--heat)" dy="-10"','middle'));
+  P.dot(phi,geoGap(phi)*100,6,'fill="#fff" stroke="var(--geo)" stroke-width="3"').end();
+  renderGeoTol();
+}
+function renderGeoTol(){
+  const tol=+$('#geoT').value;$('#geoTO').textContent=fx(tol,1)+'%';
+  let lo=0.01,hi=170;for(let i=0;i<60;i++){const mid=(lo+hi)/2;if(geoGap(mid)*100<tol)lo=mid;else hi=mid;}
+  const ph=lo,amp=ph/2;
+  $('#geoTR').innerHTML=`<dt>Largest total swing Φ</dt><dd>${fx(ph,1)}°</dd><dt>Release angle each side</dt><dd>${fx(amp,1)}°</dd><dt>Period error at that angle</dt><dd>${fx((ratioExact(rad(amp))-1)*100,2)}%</dd>`;
+  $('#geoNote').textContent=`Keep the full swing under about ${fx(ph,0)}° and arc and chord stay within ${fx(tol,1)}%. This turns the phrase "small angle" into a figure a designer can check.`;
+  const phi=+$('#geoA').value;$('#plotGeo').dataset.t=tol;
+}
+$('#geoT').addEventListener('input',()=>{renderGeo();});
+bindRange('geoR','geoRO',v=>v+' cm',renderGeo);bindRange('geoA','geoAO',v=>v+'°',renderGeo);
+$('#geoP1').onclick=()=>{$('#geoR').value=80;$('#geoA').value=11;renderGeo();};
+$('#geoP2').onclick=()=>{$('#geoR').value=100;$('#geoA').value=140;renderGeo();};
+function geoWork(){
+  const one=(r,phi)=>{const s=r*PI*phi/180,b=(180-phi)/2,d=r*Math.sin(rad(phi))/Math.sin(rad(b));return `<p><b>Case: r = ${r} cm, total swing ${phi}°</b></p><ol>
+   <li>The two equal sides are <span class="m">r</span> = ${r} cm with an apex angle Φ = ${phi}°. The two base angles are equal: <span class="eq">(180° − ${phi}°) ÷ 2 = ${fx(b,1)}°</span></li>
+   <li>Arc length from <span class="m">s</span> = <span class="m">rθ</span> with <span class="m">θ</span> in radians (convert: ${phi}° × π/180):
+     <span class="eq"><span class="m">s</span> = ${fr(`(${r})(${phi})(π)`,'180')} = ${fx(s,2)} cm</span></li>
+   <li>Chord from the sine rule, side over the sine of its opposite angle:
+     <span class="eq">${fr('<span class="m">d</span>',`sin ${phi}°`)} = ${fr(String(r),`sin ${fx(b,1)}°`)} &nbsp;⇒&nbsp; <span class="m">d</span> = ${fx(d,2)} cm</span></li>
+   <li>Difference: <span class="eq"><span class="m">s</span> − <span class="m">d</span> = ${fx(s,2)} − ${fx(d,2)} = ${fx(s-d,2)} cm</span></li></ol>`;};
+  $('#geoDer').innerHTML=one(80,11)+one(100,140)+`<p class="why">Why the sine rule gives <span class="m">d</span> = 2<span class="m">r</span> sin(Φ/2): sin Φ = 2 sin(Φ/2)cos(Φ/2) and sin((180° − Φ)/2) = cos(Φ/2), so the cos terms cancel.</p>`;
+}
+renders.geo=()=>{renderGeo();geoWork();};
+
+/* ================= HEAT ================= */
+function fitCool(ts,Ts,Tinf){
+  const y=Ts.map(T=>Math.log(T-Tinf)),n=ts.length,sx=sum(ts),sy=sum(y),sxy=sum(ts.map((t,i)=>t*y[i])),sxx=sum(ts.map(t=>t*t));
+  const b=(n*sxy-sx*sy)/(n*sxx-sx*sx),a=(sy-b*sx)/n;return{k:-b,a,Tinf};
+}
+const tempColor=T=>{const u=Math.max(0,Math.min(1,(T-40)/25));const c0=[70,120,210],c1=[214,48,80];return `rgb(${c0.map((v,i)=>Math.round(v+(c1[i]-v)*u)).join(',')})`;};
+function renderHeat(){
+  const Tinf=+$('#hAmb').value,t=+$('#hT').value;$('#hTO').textContent=t+' s';$('#hAmbO').textContent=fx(Tinf,1)+' °C';
+  const fs=fitCool(HT.t,HT.st,Tinf),fm=fitCool(HT.t,HT.mv,Tinf);
+  const Tf=(f,x)=>Tinf+Math.exp(f.a-f.k*x);
+  const P=new Plot($('#plotHeat'),{x:[-2,42],y:[35,68],xs:10,ys:5,xl:'time (s)',yl:'bob temperature (°C)',aspect:.62}).begin();
+  P.curve(x=>Tf(fs,x),0,40,40,'stroke="#3F5F99" stroke-width="2" stroke-dasharray="6 5"');
+  P.curve(x=>Tf(fm,x),0,40,40,'stroke="var(--heat)" stroke-width="2" stroke-dasharray="6 5"');
+  HT.runs.forEach((rr,i)=>rr.forEach(v=>P.dot(HT.t[i],v,3,'fill="var(--muted)" opacity=".55"')));
+  HT.t.forEach((x,i)=>{P.sq(x,HT.st[i],5.5,'fill="#3F5F99" stroke="#fff" stroke-width="1.5"',`still, ${x} s: ${HT.st[i]} °C`);P.dot(x,HT.mv[i],6,'fill="var(--heat)" stroke="#fff" stroke-width="1.5"',`moving, ${x} s: ${HT.mv[i]} °C`);});
+  P.line(t,35,t,68,'stroke="var(--ink2)" stroke-width="1.5" stroke-dasharray="2 3"');
+  P.end();
+  const Ts=Tf(fs,t),Tm=Tf(fm,t);
+  $('#heatBobs').innerHTML=[['Still',Ts,''],['Moving',Tm,'sway']].map(([n,T,c])=>`<figure><svg viewBox="0 0 90 100" width="90" height="100" aria-hidden="true"><line x1="10" y1="4" x2="80" y2="4" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/><g class="${c}"><line x1="45" y1="4" x2="45" y2="62" stroke="var(--ink2)" stroke-width="2"/><circle cx="45" cy="74" r="16" fill="${tempColor(T)}" stroke="var(--ink)" stroke-width="1.5"/></g></svg><div>${n} bob<br><b>${fx(T,1)} °C</b> (fit)</div></figure>`).join('');
+  const hAs=HT.m*HT.c*fs.k,hAm=HT.m*HT.c*fm.k,Qs=HT.m*HT.c*(49.9-58.9),Qm=HT.m*HT.c*(46.3-62.6);
+  $('#heatRO').innerHTML=`<dt>Temperature lost in 40 s</dt><dd>${fx(dStatic,2)} vs ${fx(dMoving,2)} °C</dd><dt>Moving loses more by</dt><dd>${fx((dMoving/dStatic-1)*100,2)}%</dd><div class="hr"></div>
+   <dt>Heat released Q, still</dt><dd>${fx(Qs,2)} J</dd><dt>Heat released Q, moving</dt><dd>${fx(Qm,2)} J</dd>
+   <dt>Average power, still / moving</dt><dd>${fx(-Qs/40,2)} / ${fx(-Qm/40,2)} W</dd><div class="hr"></div>
+   <dt>Cooling constant k, still</dt><dd>${fx(fs.k,4)} s⁻¹</dd><dt>Cooling constant k, moving</dt><dd>${fx(fm.k,4)} s⁻¹</dd><dt>Ratio k moving ÷ still</dt><dd>${fx(fm.k/fs.k,2)}×</dd>
+   <dt>Conductance hA to air (m·c·k)</dt><dd>${fx(hAs,3)} vs ${fx(hAm,3)} W/K</dd>`;
+  return {fs,fm};
+}
+function heatWork(){
+  const Tinf=+$('#hAmb').value,fs=fitCool(HT.t,HT.st,Tinf),fm=fitCool(HT.t,HT.mv,Tinf);
+  $('#heatDer').innerHTML=`<ol>
+   <li>Heat lost by the bob equals mass × specific heat capacity × temperature change. With <span class="m">m</span> = ${HT.m} kg and <span class="m">c</span> = ${HT.c} J kg⁻¹ K⁻¹:
+     <span class="eq"><span class="m">Q</span> = <span class="m">mcθ</span></span></li>
+   <li>Still bob, from 58.9 °C to 49.9 °C: <span class="eq"><span class="m">Q</span><sub>still</sub> = (${HT.m})(${HT.c})(49.9 − 58.9) = ${fx(HT.m*HT.c*(49.9-58.9),4)} J</span></li>
+   <li>Moving bob, from 62.6 °C to 46.3 °C: <span class="eq"><span class="m">Q</span><sub>moving</sub> = (${HT.m})(${HT.c})(46.3 − 62.6) = ${fx(HT.m*HT.c*(46.3-62.6),5)} J</span> The minus signs mean heat left the bob.</li>
+   <li>Faster cooling in the project's terms: <span class="eq">${fr('16.33 − 9.00','9.00')} × 100 = ${fx((dMoving/dStatic-1)*100,2)}%</span></li>
+   <li><b>Why the start temperatures matter.</b> The moving bob started hotter (62.6 °C against 58.9 °C), and a hotter object loses heat faster. Newton's law of cooling removes that effect. With <span class="m">T</span><sub>∞</sub> the room temperature:
+     <span class="eq"><span class="m">m</span><span class="m">c</span> ${fr('d<span class="m">T</span>','d<span class="m">t</span>')} = −<span class="m">hA</span>(<span class="m">T</span> − <span class="m">T</span><sub>∞</sub>)</span></li>
+   <li>Separate variables and integrate. With <span class="m">k</span> = <span class="m">hA</span>/(<span class="m">mc</span>):
+     <span class="eq"><span class="m">T</span>(<span class="m">t</span>) = <span class="m">T</span><sub>∞</sub> + (<span class="m">T</span><sub>0</sub> − <span class="m">T</span><sub>∞</sub>) e<sup>−<span class="m">kt</span></sup></span>
+     Taking the natural log gives a straight line, ln(<span class="m">T</span> − <span class="m">T</span><sub>∞</sub>) = ln(<span class="m">T</span><sub>0</sub> − <span class="m">T</span><sub>∞</sub>) − <span class="m">kt</span>, whose gradient is −<span class="m">k</span>.</li>
+   <li>Fitting that line to each data set with <span class="m">T</span><sub>∞</sub> = ${fx(Tinf,1)} °C gives <span class="m">k</span><sub>still</sub> = ${fx(fs.k,4)} s⁻¹ and <span class="m">k</span><sub>moving</sub> = ${fx(fm.k,4)} s⁻¹, a ratio of ${fx(fm.k/fs.k,2)}. Because the same bob is used, <span class="m">mc</span> is the same, so the ratio of <span class="m">k</span> is the ratio of the heat-transfer conductance <span class="m">hA</span>.</li>
+   <li>Peak bob speed in the swing (10°, 0.50 m string): <span class="m">v</span> ≈ <span class="m">θ</span><sub>0</sub>√(<span class="m">gl</span>) = 0.1745 × √(9.81 × 0.50) = ${fx(0.17453*Math.sqrt(9.81*0.5),2)} m/s. A gentle airflow like this lifts the conductance by roughly 1.7 times; stronger airflow lifts it further.</li></ol>`;
+}
+$('#hT').addEventListener('input',renderHeat);$('#hAmb').addEventListener('input',()=>{renderHeat();heatWork();});
+renders.heat=()=>{renderHeat();heatWork();};
+
+/* ================= INDUSTRY ================= */
+function renderInd(){
+  const lat=+$('#iLat').value;$('#iLatO').textContent=fx(lat,1)+'°';
+  const g=gLat(lat),t100=100*2*PI*Math.sqrt(1/g),t100s=100*2*PI*Math.sqrt(1/G0);
+  $('#iA').innerHTML=`<dt>Local g at sea level</dt><dd>${fx(g,4)} m/s²</dd><dt>Against 9.81</dt><dd>${fx(errPct(G0,g)*-1,2)}%</dd><dt>100 swings of a 1.000 m pendulum</dt><dd>${fx(t100,1)} s</dd><dt>Same, if g were 9.81</dt><dd>${fx(t100s,1)} s</dd>`;
+  const need=0.5*Math.abs(errPct(G0,g));
+  $('#iAn').innerHTML=`Near this latitude g differs from 9.81 by ${fx(Math.abs(errPct(G0,g)),2)}%. To see that with a pendulum, period timing must be better than about ${fx(Math.max(need,0.01),2)}%. The project's two-point result was 8.6% off, so metrology-grade work needs timing roughly 30 times tighter.`;
+  const h=+$('#iH').value,A=+$('#iArea').value,dT=+$('#iDT').value;
+  $('#iHO').textContent=h+' W/m²K';$('#iAreaO').textContent=A+' cm²';$('#iDTO').textContent=dT+' K';
+  const Q=h*(A/1e4)*dT,Qn=10*(A/1e4)*dT;
+  $('#iB').innerHTML=`<dt>Heat removed Q = hAΔT</dt><dd class="big" style="font-size:1.5rem">${fx(Q,1)} W</dd><dt>Still air (h = 10) for comparison</dt><dd>${fx(Qn,1)} W</dd><dt>Gain from airflow</dt><dd>${fx(Q/Qn,1)}×</dd><dt>Project result (swinging bob)</dt><dd>about 1.7×</dd>`;
+  const Tb=+$('#iTb').value,x=+$('#iX').value;$('#iTbO').textContent=fx(Tb,1)+' s';$('#iXO').textContent=fx(x,2)+' m';
+  const L=G0*Tb*Tb/(4*PI*PI),th=Math.asin(Math.min(1,x/L)),r=ratioExact(th);
+  $('#iC').innerHTML=`<dt>Ideal pendulum length l = gT² ÷ 4π²</dt><dd>${fx(L,2)} m</dd><dt>Swing angle</dt><dd>${fx(deg(th),1)}°</dd><dt>Period shift from large angle</dt><dd>${fx((r-1)*100,2)}%</dd><dt>Still inside the linear model?</dt><dd>${(r-1)<0.01?'Yes (under 1%)':'Check: over 1%'}</dd>`;
+}
+['iLat','iH','iArea','iDT','iTb','iX'].forEach(id=>$('#'+id).addEventListener('input',renderInd));
+renders.ind=renderInd;
+
+/* ================= RELIABILITY ================= */
+renders.rel=()=>{
+  const sc=REPORT_ROWS.map(r=>Math.max(...r.r)-Math.min(...r.r)),i=sc.indexOf(Math.max(...sc));
+  const A=gAnalyse2();
+  $('#relTab').innerHTML=`<thead><tr><th>Measurement</th><th>What the data show</th><th>Effect</th><th>Confidence</th></tr></thead><tbody>
+   <tr><td style="white-space:normal">Period for small swings</td><td style="white-space:normal;text-align:left">Largest spread between repeats: ${fx(sc[i],2)} s at ${REPORT_ROWS[i].l} cm (${fx(sc[i]/REPORT_ROWS[i].ta*100,1)}% of ${fx(REPORT_ROWS[i].ta,2)} s). Best-fit intercept ${fx(A.c,2)} s².</td><td style="white-space:normal;text-align:left">A 0.25 s hand-timing error on 28 s is 0.9% in T and 1.8% in g, so the 8.6% error also has a systematic part, probably the length measurement.</td><td>Moderate</td></tr>
+   <tr><td style="white-space:normal">Large swing, 70°</td><td style="white-space:normal;text-align:left">Three runs of 5 swings spread by ${fx(Math.max(...BIG.runs)-Math.min(...BIG.runs),2)} s on ${fx(BIG.ta,2)} s.</td><td style="white-space:normal;text-align:left">About 18 points of the 23.66% error is predicted physics. The rest comes from timing a very short run.</td><td>Good on direction, low on size</td></tr>
+   <tr><td style="white-space:normal">Arc against chord</td><td style="white-space:normal;text-align:left">Pure geometry, no measurement error beyond reading the angle.</td><td style="white-space:normal;text-align:left">Exact, and matches the closed-form 2r·sin(Φ/2).</td><td>High</td></tr>
+   <tr><td style="white-space:normal">Heat loss, moving against still</td><td style="white-space:normal;text-align:left">One still run, three moving runs. Start temperatures 58.9 °C and 62.6 °C. Room temperature not recorded.</td><td style="white-space:normal;text-align:left">Direction is clear (moving cools faster). The size, 1.7 to 1.8 times, depends on those controls.</td><td>Moderate</td></tr></tbody>`;
+};
+function gAnalyse2(){const pts=REPORT_ROWS.map(r=>({l:r.l/100,y:Math.pow(r.ta/20,2)})),n=5,sx=sum(pts.map(p=>p.l)),sy=sum(pts.map(p=>p.y)),sxy=sum(pts.map(p=>p.l*p.y)),sxx=sum(pts.map(p=>p.l*p.l));const m=(n*sxy-sx*sy)/(n*sxx-sx*sx);return{m,c:(sy-m*sx)/n};}
+
+/* ---------- boot ---------- */
+buildTabs();
+let startMode=true;try{startMode=localStorage.getItem('hml-mode')!=='e';}catch(e){}
+setMode(startMode);
+let startNotes=false;try{startNotes=localStorage.getItem('hml-notes')==='1';}catch(e){}
+setNotes(startNotes);
+const h0=SECS.findIndex(s=>s.id===(location.hash||'').slice(1));
+go(h0>=0?h0:0,true);
+window.addEventListener('hashchange',()=>{const k=SECS.findIndex(x=>x.id===(location.hash||'').slice(1));if(k>=0&&k!==cur)go(k,true);});
+let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{try{renders[SECS[cur].id]&&renders[SECS[cur].id]();}catch(e){console.error(e);}},150);});
+</script>
+
+</body></html>
