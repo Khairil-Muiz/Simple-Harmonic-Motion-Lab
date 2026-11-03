@@ -1,6 +1,19 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Harmonic Motion Lab</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Interactive pendulum, heat-loss and geometry explainer from the KMKN Simple Harmonic Motion project.">
+<meta name="theme-color" content="#15233B">
+<meta name="color-scheme" content="light">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Motion Lab">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <style>
 :root{
   color-scheme:light;
@@ -179,7 +192,11 @@ body.guided .stepnav{display:flex}
 .bar2{display:flex;height:22px;border-radius:4px;overflow:hidden;margin:8px 0 4px;font-size:.78rem;color:#fff}
 .bar2 div{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden}
 @media (prefers-reduced-motion:reduce){.sway{animation:none}#progress i{transition:none}}
+.ibtn{background:#fff;color:var(--ink);border:0;border-radius:999px;padding:5px 12px;cursor:pointer;font-size:.88rem;font-weight:600}
+.ibtn[hidden]{display:none}
 </style>
+</head>
+<body>
 <header class="top">
   <div class="wrap">
     <div class="brand"><b>Harmonic Motion Lab</b><span>One pendulum: gravity, geometry and heat</span></div>
@@ -188,12 +205,14 @@ body.guided .stepnav{display:flex}
       <button id="mExplore" aria-pressed="false">Explore</button>
     </div>
     <button id="mNotes" class="nbtn" aria-pressed="false" title="Show speaker notes on screen">Speaker notes</button>
+    <button id="mInstall" class="ibtn" hidden>Install app</button>
     <nav id="tabs" aria-label="Sections"></nav>
   </div>
   <div id="progress"><i></i></div>
 </header>
 
 <main class="wrap">
+<div id="iosTip" class="note warn" hidden style="margin:0 0 14px">To add this app to your home screen, tap the Share button in Safari, then choose Add to Home Screen.</div>
 <noscript><p>This app needs JavaScript enabled.</p></noscript>
 
 <!-- ============ OVERVIEW ============ -->
@@ -840,6 +859,24 @@ const h0=SECS.findIndex(s=>s.id===(location.hash||'').slice(1));
 go(h0>=0?h0:0,true);
 window.addEventListener('hashchange',()=>{const k=SECS.findIndex(x=>x.id===(location.hash||'').slice(1));if(k>=0&&k!==cur)go(k,true);});
 let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{try{renders[SECS[cur].id]&&renders[SECS[cur].id]();}catch(e){console.error(e);}},150);});
-</script>
 
-</body></html>
+/* ---------- install as an app ---------- */
+(function(){
+  const btn=$('#mInstall'),tip=$('#iosTip');let deferred=null;
+  const standalone=()=>(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(standalone())return;
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;btn.hidden=false;});
+  window.addEventListener('appinstalled',()=>{btn.hidden=true;deferred=null;});
+  if(ios){btn.hidden=false;btn.textContent='Add to Home Screen';}
+  btn.addEventListener('click',async()=>{
+    if(deferred){deferred.prompt();try{await deferred.userChoice;}catch(e){}deferred=null;btn.hidden=true;}
+    else if(ios){tip.hidden=!tip.hidden;}
+  });
+})();
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
+  window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{});});
+}
+</script>
+</body>
+</html>
